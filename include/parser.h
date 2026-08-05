@@ -1,7 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-// parses the string/char* into tokens
+// parses the string/char* into tokens with '...' "..." Quoting in mind.
 char **parse_arguments(char *buffer);
 
 // safely frees the arguments/tokens returned by parse_arguments().
