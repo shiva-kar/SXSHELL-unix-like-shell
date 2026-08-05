@@ -13,41 +13,80 @@ char **parse_arguments(char *buffer) {
   }
   int args_count = 0;
   bool is_single_quotes = false;
+  bool is_double_quotes = false;
 
   char *current_word = malloc(strlen(buffer) + 1);
   int word_len = 0;
+
   for (int i = 0; buffer[i] != '\0'; i++) {
     char c = buffer[i];
-    if (c == '\'') {
-      is_single_quotes = !is_single_quotes;
-      continue; // don't include the quote char in the token
+
+    // backslashes outside quotes
+    if (c == '\\' && !is_single_quotes && !is_double_quotes) {
+      char next_char = buffer[i + 1];
+      if (next_char != '\0') {
+        current_word[word_len++] = next_char;
+        i++;
+      }
+      continue;
     }
-    if (c == ' ') {
+
+    // backslashes inside double quotes
+    if (c == '\\' && is_double_quotes) {
+      char next_char = buffer[i + 1];
+      if (next_char == '"' || next_char == '\\' || next_char == '$' ||
+          next_char == '\n') {
+        current_word[word_len++] = next_char;
+        i++;
+        continue;
+      }
+    }
+
+    // double quotes
+    if (c == '\"') {
       if (!is_single_quotes) {
+        is_double_quotes = !is_double_quotes;
+        continue;
+      }
+    }
+
+    // single quotes
+    if (c == '\'') {
+      if (!is_double_quotes) {
+        is_single_quotes = !is_single_quotes;
+        continue;
+      }
+    }
+
+    // spaces
+    if (c == ' ') {
+      if (!is_single_quotes && !is_double_quotes) {
         if (word_len > 0) {
           current_word[word_len] = '\0';
           args[args_count++] = strdup(current_word);
           word_len = 0;
         }
-        continue; // ignore extra spaces outside quotes
+        continue;
       }
     }
 
+    // normal characters
     current_word[word_len++] = c;
   }
-  // save trailing token if string ended without a space
+
   if (word_len > 0) {
     current_word[word_len] = '\0';
     args[args_count++] = strdup(current_word);
   }
+
   free(current_word);
   args[args_count] = NULL;
 
   return args;
 }
+
 void free_arguments(char **args) {
   if (args != NULL) {
-    // strdup allocates new memory for each string so it frees them individually
     for (int i = 0; args[i] != NULL; i++) {
       free(args[i]);
     }
