@@ -22,7 +22,9 @@ int main(int argc, char *argv[]) {
       char **argv = parse_arguments(buffer);
 
       // Detect Redirection
-      int saved_stdout = hijack_stdout(argv);
+      int saved_stdout = -1;
+      int saved_stderr = -1;
+      hijack_redirections(argv, &saved_stdout, &saved_stderr);
 
       // If the user just pressed Enter (empty command) just ignore it :)
       if (argv != NULL && argv[0] != NULL) {
@@ -46,7 +48,7 @@ int main(int argc, char *argv[]) {
       free_arguments(argv);
 
       // Restore Hijack
-      restore_stdout(saved_stdout);
+      restore_redirections(saved_stdout, saved_stderr);
     }
   }
   free(buffer);

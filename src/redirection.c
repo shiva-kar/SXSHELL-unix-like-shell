@@ -3,40 +3,83 @@
 #include <string.h>
 #include <unistd.h>
 
-int hijack_stdout(char **argv){
+void hijack_redirections(char **argv, int *stdout, int *stderr) {
   char *output_file = NULL;
-      for (int i = 0; argv[i] != NULL; i++) {
-        if (strcmp(argv[i], ">") == 0 || strcmp(argv[i], "1>") == 0) {
-          // The next argument is the file.
-          output_file = argv[i + 1];
-          // Hides the redirection from the actual command by cutting the array
-          // short.
-          argv[i] = NULL;
-          break;
-        }
-      }
-      int saved_stdout = -1;
+  int cut_index = -1;
+
+  for (int i = 0; argv[i] != NULL; i++) {
+
+    // Stdout Overwrite
+    if (strcmp(argv[i], ">") == 0 || strcmp(argv[i], "1>") == 0) {
+      output_file = argv[i + 1];
+      if (cut_index == -1)
+        cut_index = i;
+
       if (output_file != NULL) {
-        // Save a backup of the real stdout
-        saved_stdout = dup(STDOUT_FILENO);
-
-        // Open the file (Write-only, Create if missing, Truncate/Overwrite if exists, Read/Write permissions)
+        if (*stdout == -1)
+          *stdout = dup(STDOUT_FILENO); // Safe backup check
         int fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-
-        // Hijack stdout! Force FD 1 to point to your new file instead of the terminal.
         dup2(fd, STDOUT_FILENO);
-
-        // Close the temporary fd since it's now safely cloned into FD 1
         close(fd);
       }
-      return saved_stdout;
+    }
+    // Stderr Overwrite
+    else if (strcmp(argv[i], "2>") == 0) {
+      output_file = argv[i + 1];
+      if (cut_index == -1)
+        cut_index = i;
+
+      if (output_file != NULL) {
+        if (*stderr == -1)
+          *stderr = dup(STDERR_FILENO); // Safe backup check
+        int fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        dup2(fd, STDERR_FILENO);
+        close(fd);
+      }
+    }
+    // Stdout Append
+    else if (strcmp(argv[i], ">>") == 0 || strcmp(argv[i], "1>>") == 0) {
+      output_file = argv[i + 1];
+      if (cut_index == -1)
+        cut_index = i;
+
+      if (output_file != NULL) {
+        if (*stdout == -1)
+          *stdout = dup(STDOUT_FILENO); // Safe backup check
+        int fd = open(output_file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+        dup2(fd, STDOUT_FILENO);
+        close(fd);
+      }
+    }
+    // Stderr Append
+    else if (strcmp(argv[i], "2>>") == 0) {
+      output_file = argv[i + 1];
+      if (cut_index == -1)
+        cut_index = i;
+
+      if (output_file != NULL) {
+        if (*stderr == -1)
+          *stderr = dup(STDERR_FILENO); // Safe backup check
+        int fd = open(output_file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+        dup2(fd, STDERR_FILENO);
+        close(fd);
+      }
+    }
+  }
+
+  // Hide redirections from the command
+  if (cut_index != -1) {
+    argv[cut_index] = NULL;
+  }
 }
 
-void restore_stdout(int stdout){
+void restore_redirections(int stdout, int stderr) {
   if (stdout != -1) {
-    // Restore the backup over FD 1
     dup2(stdout, STDOUT_FILENO);
-    // Close the backup
     close(stdout);
+  }
+  if (stderr != -1) {
+    dup2(stderr, STDERR_FILENO);
+    close(stderr);
   }
 }
