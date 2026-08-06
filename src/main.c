@@ -2,8 +2,7 @@
 #include "../include/executable.h"
 #include "../include/parser.h"
 #include "../include/process.h"
-#include <stdbool.h>
-#include <stddef.h>
+#include "../include/redirection.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,31 +21,32 @@ int main(int argc, char *argv[]) {
       // Parse the input into tokens
       char **argv = parse_arguments(buffer);
 
-      // If the user just pressed Enter (empty command) just ignore it :)
-      if (argv == NULL || argv[0] == NULL) {
-          free_arguments(argv);
-          continue;
-      }
+      // Detect Redirection
+      int saved_stdout = hijack_stdout(argv);
 
-      // Check if argv[0] is a builtin
-      int status = handle_builtin(argv); // Pass argv instead of buffer!
-      if (status == -1) {
-        free_arguments(argv);
-        break;
-      } else if (status == 1) {
-        free_arguments(argv);
-        continue;
-      } else {
-        // If not a built-in then run as external program
-        char *exec_path = find_executable(argv[0]);
-        if (exec_path != NULL) {
+      // If the user just pressed Enter (empty command) just ignore it :)
+      if (argv != NULL && argv[0] != NULL) {
+        // Check if argv[0] is a builtin
+        int status = handle_builtin(argv); // Pass argv instead of buffer!
+        if (status == -1) {
+          free_arguments(argv);
+          break;
+        } else if (status == 0) {
+          // If not a built-in then run as external program
+          char *exec_path = find_executable(argv[0]);
+          if (exec_path != NULL) {
             execute_program(exec_path, argv);
             free(exec_path);
-        } else {
+          } else {
             printf("%s: command not found\n", argv[0]);
+          }
         }
-        free_arguments(argv);
       }
+      // Safely frees the arguments
+      free_arguments(argv);
+
+      // Restore Hijack
+      restore_stdout(saved_stdout);
     }
   }
   free(buffer);
