@@ -3,6 +3,7 @@
 #include "../include/parser.h"
 #include "../include/process.h"
 #include "../include/redirection.h"
+#include "../include/pipeline.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,19 +29,23 @@ int main(int argc, char *argv[]) {
 
       // If the user just pressed Enter (empty command) just ignore it :)
       if (argv != NULL && argv[0] != NULL) {
-        // Check if argv[0] is a builtin
-        int status = handle_builtin(argv); // Pass argv instead of buffer!
-        if (status == -1) {
-          free_arguments(argv);
-          break;
-        } else if (status == 0) {
-          // If not a built-in then run as external program
-          char *exec_path = find_executable(argv[0]);
-          if (exec_path != NULL) {
-            execute_program(exec_path, argv);
-            free(exec_path);
-          } else {
-            printf("%s: command not found\n", argv[0]);
+        if (has_pipe(argv)) {
+          execute_pipeline(argv);
+        } else {
+          // Check if argv[0] is a builtin
+          int status = handle_builtin(argv); // Pass argv instead of buffer!
+          if (status == -1) {
+            free_arguments(argv);
+            break;
+          } else if (status == 0) {
+            // If not a built-in then run as external program
+            char *exec_path = find_executable(argv[0]);
+            if (exec_path != NULL) {
+              execute_program(exec_path, argv);
+              free(exec_path);
+            } else {
+              printf("%s: command not found\n", argv[0]);
+            }
           }
         }
       }
