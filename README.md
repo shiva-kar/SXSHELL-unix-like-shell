@@ -38,6 +38,11 @@ I built this project to get hands-on experience with process management, memory 
   - The `declare` builtin for storing shell variables.
   - Validation of variable names and handling of missing/empty variables.
   - Standard variable expansion (`$VAR`) and brace expansion (`${VAR}`).
+## Documentation & Learning Resource
+
+If you are looking to build your own shell, I have started writing a comprehensive internal documentation guide. You can find it in [`DOCS.md`](file:///d:/My%20Projects/unix-like-shell/DOCS.md).
+
+This document breaks down my thought process, my architectural approach, and acts as a learning resource for understanding how POSIX system calls operate under the hood. As I add more functionality to this shell, I will continue to expand the documentation so it serves as a complete, step-by-step guide for systems engineering students.
 
 ## Build and Run
 
