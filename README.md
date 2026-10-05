@@ -1,4 +1,8 @@
-# unix-like-shell
+
+![Logo](https://github.com/user-attachments/assets/430f729f-6951-4d38-89e3-511ebe4825b0)
+
+
+# SXSHELL : a-unix-like-shell
 
 A POSIX-compliant Unix shell written from scratch in C.
 
