@@ -8,6 +8,8 @@ A minimal Unix-like shell written from scratch in C.
 
 I built this project to get hands-on experience with process management, memory allocation, and OS-level system calls (like `fork`, `execv`, `dup2`, and `open`). It handles everything from basic command execution to dual-command pipelines and file descriptor manipulation.
 
+> 📖 **Read the in-depth tutorial on DEV Community:** [I Built a Unix Shell from Scratch in C. Here's How It Works.](https://dev.to/shivakar/i-built-a-unix-shell-from-scratch-in-c-heres-how-it-works-5c61)
+
 ## Features
 
 - **Base Shell Execution**:
@@ -38,9 +40,10 @@ I built this project to get hands-on experience with process management, memory 
 
 ## Documentation & Learning Resource
 
-If you are looking to build your own shell, I have started writing a comprehensive internal documentation guide. You can find it in [`DOCS.md`](DOCS.md).
+For deep dives into how this shell is built and how POSIX system calls operate under the hood:
 
-This document breaks down my thought process, my architectural approach, and acts as a learning resource for understanding how POSIX system calls operate under the hood. As I add more functionality to this shell, I will continue to expand the documentation so it serves as a complete, step-by-step guide for systems engineering students.
+- 📝 **[Full Step-by-Step Tutorial on DEV Community](https://dev.to/shivakar/i-built-a-unix-shell-from-scratch-in-c-heres-how-it-works-5c61)**: A beginner-friendly walkthrough breaking down the REPL loop, parsing quotes/escapes, process management with `fork`/`execv`, file descriptor hijacking, and pipe pitfalls.
+- 📘 **[`DOCS.md`](DOCS.md)**: Internal architectural notes and engine implementation reference.
 
 ## Build and Run
 

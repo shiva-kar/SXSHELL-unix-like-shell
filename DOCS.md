@@ -4,6 +4,8 @@ I built this shell from the ground up in C to deeply understand POSIX system cal
 
 If you are looking to learn how a shell actually works under the hood (or if you want to build your own), this document breaks down exactly how my engine operates.
 
+> 📖 **Read the companion tutorial on DEV Community:** [I Built a Unix Shell from Scratch in C. Here's How It Works.](https://dev.to/shivakar/i-built-a-unix-shell-from-scratch-in-c-heres-how-it-works-5c61)
+
 ## 1. The REPL (Read, Eval, Print Loop)
 Every shell starts with an infinite loop that waits for user input. In [`src/main.c`](src/main.c), I use the standard `getline()` function to read a raw string of text from the keyboard.
 
@@ -77,3 +79,8 @@ execv(right_executable, right_argv);
 ```
 
 **The Deadlock Trap:** The most critical part of this architecture is the parent cleanup. If the parent shell does not explicitly close its copies of the pipe file descriptors before calling `wait()`, the child processes will never receive an EOF (End Of File) signal, resulting in a permanent pipeline freeze.
+
+## 6. Further Reading
+
+For a step-by-step beginner guide with full code explanations, error handling nuances, and testing milestones:
+- [I Built a Unix Shell from Scratch in C. Here's How It Works.](https://dev.to/shivakar/i-built-a-unix-shell-from-scratch-in-c-heres-how-it-works-5c61) (DEV Community)
